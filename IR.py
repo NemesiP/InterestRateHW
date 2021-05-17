@@ -131,7 +131,11 @@ class VasicekModel(InterestRateBase):
                 helper_exp.append(np.exp(-interest_tree[i]*self.dt))
             else:
                 tree_mid[i] = tree_mid[i - 1] * np.exp(-self.theta*self.dt) + (self.kk/self.theta) * (1 - np.exp(-self.theta * self.dt))
-                interest_tree.append(tree_mid[i] + self.dx * np.linspace(-i, i, i*2 + 1))
+#                If you allow to the interest rates can take negative values use the commented code
+#                interest_tree.append(tree_mid[i] + self.dx * np.linspace(-i, i, i*2 + 1))
+#
+#                You this instead to get only positive values in the interest rate tree
+                interest_tree.append(np.abs(tree_mid[i] + self.dx * np.linspace(-i, i, i*2 + 1)))
                 helper_exp.append(np.exp(-interest_tree[i]*self.dt))
         
         return interest_tree, helper_exp
@@ -181,7 +185,11 @@ class CIRModel(InterestRateBase):
                 helper_exp.append(np.exp(-interest_tree[i]*self.dt))
             else:
                 tree_mid[i] = tree_mid[i - 1] + self.dt * ((self.alpha / 2 - (self.sigma**2) / 8) / tree_mid[i - 1] - self.beta / 2 * tree_mid[i - 1])
-                interest_tree.append(tree_mid[i] + self.dx * np.linspace(-i, i, i*2 + 1))
+#                If you allow to the interest rates can take negative values use the commented code
+#                interest_tree.append(tree_mid[i] + self.dx * np.linspace(-i, i, i*2 + 1))
+#
+#                You this instead to get only positive values in the interest rate tree
+                interest_tree.append(np.abs(tree_mid[i] + self.dx * np.linspace(-i, i, i*2 + 1)))
                 helper_exp.append(np.exp(-(interest_tree[i]**2)*self.dt))
         
         return interest_tree, helper_exp, tree_mid
@@ -220,8 +228,8 @@ class CIRModel(InterestRateBase):
     
     
 if __name__ == '__main__':
-    frates = np.array([0.045, 0.05, 0.055, 0.045, 0.04, 0.045, 0.048, 0.05, 0.05, 0.044, 0.045, 0.048, 0.045, 0.042, 0.043])
-    vasi_p = VasicekModel(kk = 0.0045, theta = 0.1, sigma = 0.01, r0 = 0.046, K = 0.047, dt = 0.5, N = 15, forward_rates = frates)
+    frates = np.array([0.046, 0.05, 0.053, 0.046, 0.041, 0.045, 0.0475, 0.05, 0.051, 0.045, 0.045, 0.048, 0.0475, 0.047])
+    vasi_p = VasicekModel(kk = 0.0045, theta = 0.1, sigma = 0.01, r0 = 0.046, K = 0.047, dt = 0.5, N = 14, forward_rates = frates)
     print(vasi_p.price())
-    cir_p = CIRModel(alpha = 0.0045, beta = 0.1, sigma = 0.0447, r0 = 0.046, K = 0.047, dt = 0.5, N = 15, forward_rates = frates)
+    cir_p = CIRModel(alpha = 0.0045, beta = 0.1, sigma = 0.0447, r0 = 0.046, K = 0.047, dt = 0.5, N = 14, forward_rates = frates)
     print(cir_p.price())
